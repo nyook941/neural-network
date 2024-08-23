@@ -4,7 +4,7 @@ import random
 
 class Layer:
     def __init__(self, neuronAmount, previousActivations, inputLayer=False) -> None:
-        self.neurons = []
+        self.neurons: Neuron = []
         self.weights = (
             None
             if inputLayer

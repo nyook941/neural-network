@@ -17,8 +17,13 @@ class Neuron:
         return Neuron.sigmoid(z)
     
     @staticmethod
-    def sigmoid(x: float):
+    def sigmoid(x: float) -> float:
         return 1 / (1 +  math.exp(-x))
+    
+    @staticmethod
+    def dSigmoid(x: float) -> float:
+        sigmoid = Neuron.sigmoid(x)
+        return sigmoid * (1 - sigmoid)
 
     def __str__(self) -> str:
         return f'{{ activation: {self.activation}, bias: {self.bias} }}'

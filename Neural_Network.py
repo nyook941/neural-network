@@ -1,5 +1,6 @@
 from typing import List
 from Layer import Layer
+from Neuron import Neuron
 
 class NeuralNetwork:
     def __init__(self, inputLayer: List[float], hiddenLayers: List[int], outputLayerNeurons: int) -> None:
@@ -23,22 +24,9 @@ class NeuralNetwork:
             sum += (outputLayer[i] - expectedOutputs[i]) ** 2
 
         return sum
-    
-    def train(self):
-        pass
-        #  TODO
-
-    def backpropogate(self, layer: Layer):
-        for neuron in layer.neurons:
-            neuron.activation
-        pass
 
     def __str__(self) -> str:
         s = f"\033[34mInput Layer:\033[0m\n\t{self.layers[0]}"
         for i in range(1, len(self.layers)-1):
             s += f"\033[34mHidden Layer {i}:\033[0m\n\t{self.layers[i]}"
         return s + f"\033[34mOutput Layer:\033[0m\n\t{self.layers[-1]}"
-    
-nn = NeuralNetwork([1], [1], 1)
-print(nn)
-print(nn.calculateCost([1]))
