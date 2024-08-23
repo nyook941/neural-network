@@ -1,6 +1,6 @@
 from typing import List
 from Neuron import Neuron
-import numpy as np
+import random
 
 class Layer:
     def __init__(self, neuronAmount, previousActivations, inputLayer=False) -> None:
@@ -9,7 +9,7 @@ class Layer:
             None
             if inputLayer
             else [
-                [np.random.randn() for _ in range(len(previousActivations))]
+                [random.uniform(0.0, 1.0) for _ in range(len(previousActivations))]
                 for _ in range(neuronAmount)
             ]
         )
@@ -22,11 +22,14 @@ class Layer:
                 )
             )
 
-    def previousActivations(self) -> List[float]:
-        previousActivations = []
+    def getActivationList(self) -> List[float]:
+        activations = []
         for neuron in self.neurons:
-            previousActivations.append(neuron.activation)
-        return previousActivations
-
+            activations.append(neuron.activation)
+        return activations
+    
     def __str__(self) -> str:
-        return '{\n Neurons: [\n  ' + '\n  '.join(str(neuron) for neuron in self.neurons) +'\n ]' + f'\n Weights:\n  {str(self.weights)}\n}}'
+        s = "\033[32mNeurons:\033[0m\n\t"
+        for neuron in self.neurons:
+            s += str(neuron) + ",\n\t"
+        return s + f"\033[32mWeights:\033[0m\n\t{self.weights}\n"
