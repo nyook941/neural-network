@@ -1,3 +1,5 @@
+import math
+
 class Neuron:
     bias = 0
     activation = 0
@@ -12,7 +14,11 @@ class Neuron:
             for j in range(len(weights[i])):
                 z += weights[i][j] * previousActivations[j]
         z += bias
-        return max(0, z)
+        return Neuron.sigmoid(z)
+    
+    @staticmethod
+    def sigmoid(x: float):
+        return 1 / (1 +  math.exp(-x))
 
     def __str__(self) -> str:
         return f'{{ activation: {self.activation}, bias: {self.bias} }}'

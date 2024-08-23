@@ -13,7 +13,7 @@ class NeuralNetwork:
         # Add output layers
         self.layers.append(Layer(outputLayerNeurons, self.layers[-1].getActivationList()))
 
-    def calculateCost(self, expectedOutputs: List[float]):
+    def calculateCost(self, expectedOutputs: List[float]) -> float:
         outputLayer = self.layers[-1].getActivationList()
         if len(expectedOutputs) != len(outputLayer):
             raise ValueError(f"Expected array of length {len(outputLayer)} for parameter 'expectedOutputs' but got length {len(expectedOutputs)} instead")
@@ -23,8 +23,15 @@ class NeuralNetwork:
             sum += (outputLayer[i] - expectedOutputs[i]) ** 2
 
         return sum
+    
+    def train(self):
+        pass
+        #  TODO
 
-        
+    def backpropogate(self, layer: Layer):
+        for neuron in layer.neurons:
+            neuron.activation
+        pass
 
     def __str__(self) -> str:
         s = f"\033[34mInput Layer:\033[0m\n\t{self.layers[0]}"
@@ -32,6 +39,6 @@ class NeuralNetwork:
             s += f"\033[34mHidden Layer {i}:\033[0m\n\t{self.layers[i]}"
         return s + f"\033[34mOutput Layer:\033[0m\n\t{self.layers[-1]}"
     
-nn = NeuralNetwork([1, 1, 1], [1], 1)
+nn = NeuralNetwork([1], [1], 1)
 print(nn)
 print(nn.calculateCost([1]))
