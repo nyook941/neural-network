@@ -3,7 +3,7 @@ from Neuron import Neuron
 import random
 
 class Layer:
-    def __init__(self, neuronAmount, previousActivations, inputLayer=False) -> None:
+    def __init__(self, neuronAmount: int, previousActivations: List[float], inputLayer=False) -> None:
         self.neurons: Neuron = []
         self.weights = (
             None
@@ -13,12 +13,12 @@ class Layer:
                 for _ in range(neuronAmount)
             ]
         )
-        for i in range(neuronAmount):
+        for neuronIndex in range(neuronAmount):
             self.neurons.append(
                 Neuron(
-                    previousActivations[i] 
-                    if inputLayer 
-                    else Neuron.calculateActivation(previousActivations, self.weights, 0)
+                    previousActivations[neuronIndex]
+                    if inputLayer
+                    else Neuron.calculateActivation(previousActivations, neuronIndex, self.weights, 0)
                 )
             )
 
@@ -28,8 +28,18 @@ class Layer:
             activations.append(neuron.activation)
         return activations
     
+    def getBiasList(self) -> List[float]:
+        biases = []
+        for neuron in self.neurons:
+            biases.append(neuron.bias)
+        return biases
+    
     def __str__(self) -> str:
         s = "\033[32mNeurons:\033[0m\n\t"
         for neuron in self.neurons:
             s += str(neuron) + ",\n\t"
-        return s + f"\033[32mWeights:\033[0m\n\t{self.weights}\n"
+        if self.weights:
+            s += f"\033[32mWeights:\033[0m\n\t"
+            for neuronWeights in self.weights:
+                s += str(neuronWeights) + "\n\t"
+        return s + "\n"

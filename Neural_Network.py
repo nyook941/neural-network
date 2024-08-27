@@ -12,18 +12,7 @@ class NeuralNetwork:
             self.layers.append(Layer(neuronAmount, self.layers[-1].getActivationList()))
 
         # Add output layers
-        self.layers.append(Layer(outputLayerNeurons, self.layers[-1].getActivationList()))
-
-    def calculateCost(self, expectedOutputs: List[float]) -> float:
-        outputLayer = self.layers[-1].getActivationList()
-        if len(expectedOutputs) != len(outputLayer):
-            raise ValueError(f"Expected array of length {len(outputLayer)} for parameter 'expectedOutputs' but got length {len(expectedOutputs)} instead")
-        
-        sum = 0
-        for i in range(len(expectedOutputs)):
-            sum += (outputLayer[i] - expectedOutputs[i]) ** 2
-
-        return sum
+        self.layers.append(Layer(outputLayerNeurons, self.layers[-1].getActivationList()))        
 
     def __str__(self) -> str:
         s = f"\033[34mInput Layer:\033[0m\n\t{self.layers[0]}"

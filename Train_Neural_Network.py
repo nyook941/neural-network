@@ -7,34 +7,54 @@ class TrainNeuralNetwork:
         self.nn = nn
         self.trainingSet = trainingSet
         self.sampleIndex = 0
+        self.activationGradients = []
+        self.biasGradients = []
+        self.weightGradients = []
+        self.cost = self.calculateCost()
 
-    def train(self):
+    def trainSet(self, set):
         pass
         #  TODO
 
-    def backpropagate(self, layerIndex: int):
-        layer = self.nn.layers[layerIndex]
-        previousActivationList = self.nn.layers[layerIndex-1].getActivationList()
-        weightNudges = []
-        biasNudges = []
-        previousActivationNudges = []
-        for previousActivation in previousActivationList:
-            weightSum = 0
-            biasSum = 0
-            previousActivationSum = 0
-            for i in range(len(layer.weights[0])):
-                for j in range(len(layer.weights)):
-                    bias = layer.neurons[j].bias
-                    weight = layer.weights[i][j]
-                    z = weight * previousActivation + bias
-                    dActivation = Neuron.dSigmoid(z)
-                    dCost = 2 * (Neuron.sigmoid(z) - self.trainingSet[self.sampleIndex][1])
-                    weightSum += dActivation * dCost * previousActivation
-                    biasSum += dCost * dActivation
-                    previousActivationSum += weight * dCost * dActivation
-            weightNudges.append(weightSum)
-            biasNudges.append(biasSum)
-            previousActivationNudges.append(previousActivationSum)
-        print(weightNudges)
-        print(biasNudges)
-        print(previousActivationNudges)
+    def backpropagate(self, layerIndex: int, activationGradients: List[float]):
+        biases = self.nn.layers[layerIndex].getBiases()
+        weights = self.nn.layers[layerIndex].weights
+        layerWeightGradient = weights.copy()
+        layerBiasGraidient = biases.copy()
+        layerActivationGradients = activationGradients.copy()
+        prevLayerActivations = self.nn.layers[layerIndex-1].getActivationList()
+
+        for prevLayerIndex in range(len(prevLayerActivations)):
+            previousActivation = prevLayerActivations[prevLayerIndex]
+            for currentLayerIndex in range(len(activationGradients)):
+                # get values
+                bias = biases[currentLayerIndex]
+                weight = weights[currentLayerIndex][prevLayerIndex]
+                z = previousActivation * weight + bias
+                dz_dw = previousActivation
+                da_dz = Neuron.dSigmoid(z)
+                errorTerm = activationGradients[currentLayerIndex]
+
+                # calculate bias gradients
+                biasGradient = da_dz * errorTerm
+                layerBiasGraidient[currentLayerIndex] = biasGradient
+
+                # calculate weight gradients
+                weightGradient = dz_dw * biasGradient
+                layerWeightGradient[currentLayerIndex][prevLayerIndex] = weightGradient
+
+                # calculate activation gradients
+                activationGradient = weight * biasGradient
+                layerActivationGradients[currentLayerIndex] = activationGradient
+
+    def getCostMatrix(self):
+        output = self.nn.layers[-1].getActivationList()
+        costMatrix = []
+        for i in range(len(output)):
+            expectedValue = self.trainingSet[i][1]
+            costMatrix.append((output[i] - expectedValue) ** 2)
+        return costMatrix
+
+
+    def getMSE():
+        pass
