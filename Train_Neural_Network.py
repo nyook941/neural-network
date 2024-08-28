@@ -8,17 +8,54 @@ class NeuralNetworkTrainer:
         self.trainingSet = trainingSet
         self.biasGradients = []
         self.weightGradients = []
+        self.initializeWeightGradientSize()
+        self.initializeBiasGadientSize()
 
-    def trainSet(self):
-        for sampleIndex in range(len(self.trainingSet)):
-            sample = self.trainingSet[sampleIndex]
-            self.nn.forwardPass(sample[0])
-            print(self.nn)
-            costMatrix = self.getCostMatrixDerivative(sampleIndex)
-            self.backpropagate(len(self.nn.layers)-1, costMatrix)
+    def initializeWeightGradientSize(self):
+        for layerIndex in range(1, len(self.nn.layers)):
+            self.weightGradients.append([])
+            layer = self.nn.layers[layerIndex]
+            for currentNeuronIndex in range(len(layer.weights)):
+                self.weightGradients[layerIndex-1].append([])
+                for prevNeruonIndex in range(len(layer.weights[0])):
+                    self.weightGradients[layerIndex-1][currentNeuronIndex].append(0)
+
+    def addWeightGradients(self, layerIndex, layerWeightGradients):
+        layer = self.weightGradients[layerIndex-1]
+        for currentNeuronIndex in range(len(layerWeightGradients)):
+            for previousNeuronIndex in range(len(layerWeightGradients[currentNeuronIndex])):
+                layer[currentNeuronIndex][previousNeuronIndex] += layerWeightGradients[currentNeuronIndex][previousNeuronIndex]
+
+    def averageWeightGradients(self):
+        for layerIndex in range(len(self.weightGradients)):
+            for currentNeuronIndex in range(len(self.weightGradients[layerIndex])):
+                for prevNeuronIndex in range(len(self.weightGradients[layerIndex][currentNeuronIndex])):
+                    self.weightGradients[layerIndex][currentNeuronIndex][prevNeuronIndex] /= len(self.trainingSet)
+
+    def initializeBiasGadientSize(self):
+        for currentLayer in range(1, len(self.nn.layers)):
+            self.biasGradients.append([])
+            for neuronIndex in range(len(self.nn.layers[currentLayer].neurons)):
+                self.biasGradients[currentLayer-1].append(0)
+
+    def addBiasLayerGradients(self, layerIndex, layerBiasGradients):
+        layer = self.biasGradients[layerIndex-1]
+        for currentNeuronIndex in range(len(layerBiasGradients)):
+            layer[currentNeuronIndex] += layerBiasGradients[currentNeuronIndex]
+
+    def trainSet(self, epochs, epochPrintInterval=10):
+        for epoch in range(epochs):
+            for sampleIndex in range(len(self.trainingSet)):
+                sample = self.trainingSet[sampleIndex]
+                self.nn.forwardPass(sample[0])
+                costMatrix = self.getCostMatrixDerivative(sampleIndex)
+                self.backpropagate(len(self.nn.layers)-1, costMatrix)
+            # Average and set the weight gradients
+            self.averageWeightGradients()
             self.nn.setWeights(self.weightGradients)
-        # print(self.weightGradients)
-        # print(self.biasGradients)
+
+            # Average and set the biases
+            print(self.biasGradients)
 
     def backpropagate(self, layerIndex: int, activationGradients: List[float]):
         if layerIndex == 0:
@@ -49,13 +86,13 @@ class NeuralNetworkTrainer:
 
                 # calculate weight gradients
                 weightGradient = dz_dw * biasGradient
-                layerWeightGradients[currentLayerIndex][prevLayerIndex] = weightGradient
+                layerWeightGradients[currentLayerIndex][prevLayerIndex] += weightGradient
 
                 # calculate activation gradients
                 activationGradient += weight * biasGradient
             layerActivationGradients.append(activationGradient)
-            self.weightGradients = layerWeightGradients + self.weightGradients
-            self.biasGradients = layerBiasGradients + self.biasGradients
+        self.addWeightGradients(layerIndex, layerWeightGradients)
+        self.addBiasLayerGradients(layerIndex, layerBiasGradients)
         
         self.backpropagate(layerIndex-1, layerActivationGradients)
 

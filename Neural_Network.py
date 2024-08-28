@@ -27,9 +27,13 @@ class NeuralNetwork:
             activationList.append(Neuron.sigmoid(sum))
         return self.forwardPass(activationList, layerIndex+1)
     
-    def setWeights(self, newWeights):
+    def setWeights(self, newWeights, learningRate=0.1):
         for layerIndex in range(len(newWeights)):
-            print(newWeights[layerIndex])
+            layerWeights = self.layers[layerIndex+1].weights
+            for currentLayerIndex in range(len(layerWeights)):
+                for prevLayerIndex in range(len(layerWeights[currentLayerIndex])):
+                    weightGradient = newWeights[layerIndex][currentLayerIndex][prevLayerIndex]
+                    layerWeights[currentLayerIndex][prevLayerIndex] -= learningRate * weightGradient
 
     def __str__(self) -> str:
         s = f"\033[34mInput Layer:\033[0m\n\t{self.layers[0]}"
