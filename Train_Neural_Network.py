@@ -3,15 +3,18 @@ from Neuron import Neuron
 from typing import List
 
 class NeuralNetworkTrainer:
-    def __init__(self, nn: NeuralNetwork, trainingSet: List[tuple]) -> None:
+    def __init__(self, nn: NeuralNetwork, trainingSet: List[tuple], learningRate=0.1) -> None:
         self.nn = nn
         self.trainingSet = trainingSet
+        self.learningRate = learningRate
+        self.costs = []
         self.biasGradients = []
         self.weightGradients = []
         self.initializeWeightGradientSize()
         self.initializeBiasGadientSize()
 
     def initializeWeightGradientSize(self):
+        self.weightGradients = []
         for layerIndex in range(1, len(self.nn.layers)):
             self.weightGradients.append([])
             layer = self.nn.layers[layerIndex]
@@ -33,6 +36,7 @@ class NeuralNetworkTrainer:
                     self.weightGradients[layerIndex][currentNeuronIndex][prevNeuronIndex] /= len(self.trainingSet)
 
     def initializeBiasGadientSize(self):
+        self.biasGradients = []
         for currentLayer in range(1, len(self.nn.layers)):
             self.biasGradients.append([])
             for neuronIndex in range(len(self.nn.layers[currentLayer].neurons)):
@@ -43,6 +47,11 @@ class NeuralNetworkTrainer:
         for currentNeuronIndex in range(len(layerBiasGradients)):
             layer[currentNeuronIndex] += layerBiasGradients[currentNeuronIndex]
 
+    def averageBiasGradients(self):
+        for layerIndex in range(len(self.biasGradients)):
+            for curretnNeuronIndex in range(len(self.biasGradients[layerIndex])):
+                self.biasGradients[layerIndex][curretnNeuronIndex] /= len(self.trainingSet)
+
     def trainSet(self, epochs, epochPrintInterval=10):
         for epoch in range(epochs):
             for sampleIndex in range(len(self.trainingSet)):
@@ -52,10 +61,14 @@ class NeuralNetworkTrainer:
                 self.backpropagate(len(self.nn.layers)-1, costMatrix)
             # Average and set the weight gradients
             self.averageWeightGradients()
-            self.nn.setWeights(self.weightGradients)
+            self.nn.setWeights(self.weightGradients, self.learningRate)
 
             # Average and set the biases
-            print(self.biasGradients)
+            self.averageBiasGradients()
+            self.nn.setBiases(self.biasGradients, self.learningRate)
+
+            if epoch % epochPrintInterval == 0:
+                print(f"\033[35mEpoch {epoch}\33[0m")
 
     def backpropagate(self, layerIndex: int, activationGradients: List[float]):
         if layerIndex == 0:
@@ -111,6 +124,3 @@ class NeuralNetworkTrainer:
             expectedValue = self.trainingSet[sampleIndex][1][i]
             costMatrix.append((output[i] - expectedValue) * 2)
         return costMatrix
-
-    def getMSE():
-        pass

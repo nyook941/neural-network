@@ -35,6 +35,13 @@ class NeuralNetwork:
                     weightGradient = newWeights[layerIndex][currentLayerIndex][prevLayerIndex]
                     layerWeights[currentLayerIndex][prevLayerIndex] -= learningRate * weightGradient
 
+    def setBiases(self, newBiases, learningRate=0.1):
+        for layerIndex in range(len(newBiases)):
+            layerBiases = self.layers[layerIndex+1].getBiasList()
+            for currentLayerIndex in range(len(layerBiases)):
+                biasGradient = newBiases[layerIndex][currentLayerIndex]
+                layerBiases[currentLayerIndex] -= learningRate * biasGradient
+
     def __str__(self) -> str:
         s = f"\033[34mInput Layer:\033[0m\n\t{self.layers[0]}"
         for i in range(1, len(self.layers)-1):
