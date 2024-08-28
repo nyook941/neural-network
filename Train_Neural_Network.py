@@ -7,7 +7,6 @@ class NeuralNetworkTrainer:
         self.nn = nn
         self.trainingSet = trainingSet
         self.learningRate = learningRate
-        self.costs = []
         self.biasGradients = []
         self.weightGradients = []
         self.initializeWeightGradientSize()
@@ -69,6 +68,7 @@ class NeuralNetworkTrainer:
 
             if epoch % epochPrintInterval == 0:
                 print(f"\033[35mEpoch {epoch}\33[0m")
+                print(f"MSE: {self.getMSE()}")
 
     def backpropagate(self, layerIndex: int, activationGradients: List[float]):
         if layerIndex == 0:
@@ -109,7 +109,8 @@ class NeuralNetworkTrainer:
         
         self.backpropagate(layerIndex-1, layerActivationGradients)
 
-    def getCostMatrix(self, sampleIndex):
+    def getCostMatrix(self, sampleIndex) -> List[float]:
+        self.nn.forwardPass(self.trainingSet[sampleIndex][0])
         output = self.nn.layers[-1].getActivationList()
         costMatrix = []
         for i in range(len(output)):
@@ -124,3 +125,10 @@ class NeuralNetworkTrainer:
             expectedValue = self.trainingSet[sampleIndex][1][i]
             costMatrix.append((output[i] - expectedValue) * 2)
         return costMatrix
+    
+    def getMSE(self):
+        costs = []
+        for sampleIndex in range(len(self.trainingSet)):
+            costMatrix = self.getCostMatrix(sampleIndex)
+            costs.append(sum(costMatrix))
+        return sum(costs) / len(self.trainingSet)
