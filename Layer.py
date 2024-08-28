@@ -28,6 +28,10 @@ class Layer:
             activations.append(neuron.activation)
         return activations
     
+    def setActivations(self, activations: List[float]) -> None:
+        for i in range(len(self.neurons)):
+            self.neurons[i].activation = activations[i]
+    
     def getBiasList(self) -> List[float]:
         biases = []
         for neuron in self.neurons:

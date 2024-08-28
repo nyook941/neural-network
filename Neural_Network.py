@@ -12,7 +12,24 @@ class NeuralNetwork:
             self.layers.append(Layer(neuronAmount, self.layers[-1].getActivationList()))
 
         # Add output layers
-        self.layers.append(Layer(outputLayerNeurons, self.layers[-1].getActivationList()))        
+        self.layers.append(Layer(outputLayerNeurons, self.layers[-1].getActivationList()))
+
+    def forwardPass(self, inputs: List[float], layerIndex: int = 1) -> List[float]:
+        self.layers[layerIndex-1].setActivations(inputs)
+        if layerIndex == len(self.layers):
+            return inputs
+        layer = self.layers[layerIndex]
+        activationList = []
+        for currentLayerIndex in range(len(layer.neurons)):
+            sum = 0
+            for previousLayerIndex in range(len(inputs)):
+                sum += layer.weights[currentLayerIndex][previousLayerIndex] * inputs[previousLayerIndex]
+            activationList.append(Neuron.sigmoid(sum))
+        return self.forwardPass(activationList, layerIndex+1)
+    
+    def setWeights(self, newWeights):
+        for layerIndex in range(len(newWeights)):
+            print(newWeights[layerIndex])
 
     def __str__(self) -> str:
         s = f"\033[34mInput Layer:\033[0m\n\t{self.layers[0]}"
