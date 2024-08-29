@@ -1,32 +1,49 @@
 from typing import List
 from Neuron import Neuron
-import numpy as np
+import random
 
 class Layer:
-    def __init__(self, neuronAmount, previousActivations, inputLayer=False) -> None:
-        self.neurons = []
+    def __init__(self, neuronAmount: int, previousActivations: List[float], inputLayer=False) -> None:
+        self.neurons: Neuron = []
         self.weights = (
             None
             if inputLayer
             else [
-                [np.random.randn() for _ in range(len(previousActivations))]
+                [random.uniform(0.0, 1.0) for _ in range(len(previousActivations))]
                 for _ in range(neuronAmount)
             ]
         )
-        for i in range(neuronAmount):
+        for neuronIndex in range(neuronAmount):
             self.neurons.append(
                 Neuron(
-                    previousActivations[i] 
-                    if inputLayer 
-                    else Neuron.calculateActivation(previousActivations, self.weights, 0)
+                    previousActivations[neuronIndex]
+                    if inputLayer
+                    else Neuron.calculateActivation(previousActivations, neuronIndex, self.weights, 0)
                 )
             )
 
-    def previousActivations(self) -> List[float]:
-        previousActivations = []
+    def getActivationList(self) -> List[float]:
+        activations = []
         for neuron in self.neurons:
-            previousActivations.append(neuron.activation)
-        return previousActivations
-
+            activations.append(neuron.activation)
+        return activations
+    
+    def setActivations(self, activations: List[float]) -> None:
+        for i in range(len(self.neurons)):
+            self.neurons[i].activation = activations[i]
+    
+    def getBiasList(self) -> List[float]:
+        biases = []
+        for neuron in self.neurons:
+            biases.append(neuron.bias)
+        return biases
+    
     def __str__(self) -> str:
-        return '{\n Neurons: [\n  ' + '\n  '.join(str(neuron) for neuron in self.neurons) +'\n ]' + f'\n Weights:\n  {str(self.weights)}\n}}'
+        s = "\033[32mNeurons:\033[0m\n\t"
+        for neuron in self.neurons:
+            s += str(neuron) + ",\n\t"
+        if self.weights:
+            s += f"\033[32mWeights:\033[0m\n\t"
+            for neuronWeights in self.weights:
+                s += str(neuronWeights) + "\n\t"
+        return s + "\n"
