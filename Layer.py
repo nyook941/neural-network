@@ -1,49 +1,15 @@
-from typing import List
-from Neuron import Neuron
-import random
+import numpy as np
 
 class Layer:
-    def __init__(self, neuronAmount: int, previousActivations: List[float], inputLayer=False) -> None:
-        self.neurons: Neuron = []
-        self.weights = (
-            None
-            if inputLayer
-            else [
-                [random.uniform(0.0, 1.0) for _ in range(len(previousActivations))]
-                for _ in range(neuronAmount)
-            ]
-        )
-        for neuronIndex in range(neuronAmount):
-            self.neurons.append(
-                Neuron(
-                    previousActivations[neuronIndex]
-                    if inputLayer
-                    else Neuron.calculateActivation(previousActivations, neuronIndex, self.weights, 0)
-                )
-            )
+    def __init__(self, neuronAmount: int, previousActivations = None) -> None:
+        self.weights = np.random.uniform(0, 0.3, size=(self.neuronAmount, previousActivations.size)) if previousActivations else None
+        self.biases = np.zeros(neuronAmount, 1) if previousActivations else None
+        self.activations = self.calculateActivations() if previousActivations else np.ones(neuronAmount, 1)
+        self.neuronAmount = neuronAmount
 
-    def getActivationList(self) -> List[float]:
-        activations = []
-        for neuron in self.neurons:
-            activations.append(neuron.activation)
-        return activations
-    
-    def setActivations(self, activations: List[float]) -> None:
-        for i in range(len(self.neurons)):
-            self.neurons[i].activation = activations[i]
-    
-    def getBiasList(self) -> List[float]:
-        biases = []
-        for neuron in self.neurons:
-            biases.append(neuron.bias)
-        return biases
-    
-    def __str__(self) -> str:
-        s = "\033[32mNeurons:\033[0m\n\t"
-        for neuron in self.neurons:
-            s += str(neuron) + ",\n\t"
-        if self.weights:
-            s += f"\033[32mWeights:\033[0m\n\t"
-            for neuronWeights in self.weights:
-                s += str(neuronWeights) + "\n\t"
-        return s + "\n"
+    def calculateActivations(self, previousActivations):
+        z = self.weights @ previousActivations + self.biases
+        return self.sigmoid(z)
+
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
