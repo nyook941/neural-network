@@ -68,7 +68,7 @@ class NeuralNetworkTrainer:
 
             if epoch % epochPrintInterval == 0:
                 print(f"\033[35mEpoch {epoch}\33[0m")
-                print(f"MSE: {self.getMSE()}")
+                print(f"MSE: {self.getMSE()}\n")
 
     def backpropagate(self, layerIndex: int, activationGradients: List[float]):
         if layerIndex == 0:
