@@ -11,7 +11,7 @@ class Network:
                 hidden.append(Layer(hiddenLayers[i], self.input.activations))
             hidden.append(Layer(hiddenLayers[i], hidden[i-1].activations))
         self.output = Layer(outputLayerNeurons, hidden[-1].activations)
-        self.layers = np.array([self.input] + hidden + [self.output], dtype=object)
+        self.layers: List[Layer] = np.array([self.input] + hidden + [self.output], dtype=object)
 
     def __str__(self):
         blue = '\033[94m'
@@ -29,3 +29,12 @@ class Network:
         layer_strings.append(f"{blue}Output layer:\n{reset}{self.output}")
 
         return "\n".join(layer_strings)
+    
+    def feedForward(self, inputMatrix):
+        if inputMatrix.shape != self.input.activations.shape:
+            raise Exception("Provided input shape does not match input shape of nn")
+        self.input.activations = inputMatrix
+        for i in range(1, len(self.layers)):
+            previousActivations = self.layers[i-1].activations
+            self.layers[i].activations = self.layers[i].calculateActivations(previousActivations)
+        return self.output.activations
